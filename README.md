@@ -70,6 +70,10 @@ Select CSV files and view the contents of files in a list view
 
 - pip install tkinterdnd2  
 
+## プログラムの説明サイト Program description site
+
+[CSV viewerアプリの作り方(ドラッグアンドドロップ)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer)  
+
 ## 作者 Authors
 juu7g
 
