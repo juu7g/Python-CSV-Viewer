@@ -70,6 +70,10 @@ Select CSV files and view the contents of files in a list view
 
 - pip install tkinterdnd2  
 
+## プログラムの説明サイト Program description site
+
+[ハローワーク求人情報のスクレイピング(Selenium)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer)  
+
 ## 作者 Authors
 juu7g
 
