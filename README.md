@@ -72,7 +72,11 @@ Select CSV files and view the contents of files in a list view
 
 ## プログラムの説明サイト Program description site
 
+<<<<<<< HEAD
 [CSV viewerアプリの作り方(ドラッグアンドドロップ)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer)  
+=======
+[ハローワーク求人情報のスクレイピング(Selenium)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer)  
+>>>>>>> 1ddcb4c8fa7baa47b0b2f8d1ee1197a8c9928644
 
 ## 作者 Authors
 juu7g
