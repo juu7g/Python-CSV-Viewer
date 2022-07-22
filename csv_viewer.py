@@ -46,7 +46,7 @@ class ListView(ttk.Frame):
     def create_input_frame(self, parent):
         """
         入力項目の画面の作成
-        上段：入力ファイルパス、ファイル選択ボタン、開くボタン、文字コード選択
+        上段：入力ファイルパス、ファイル選択ボタン、見出し行数、文字コード選択
         下段：メッセージ
         """
         self.lbl_csv = tk.Label(parent, text="CSV:")
@@ -54,6 +54,9 @@ class ListView(ttk.Frame):
         # リストボックス height=負 で全体表示
         self.list_csv_path = tk.Listbox(parent, height=-1, listvariable=self.var_csv_path)
         self.btn_f_sel = tk.Button(parent, text="ファイル選択", command=self.select_files)
+        self.lbl_heading = tk.Label(parent, text="ソート時の見出し行数")
+        self.var_heading = tk.IntVar(value=1)
+        self.ety_heading = tk.Entry(parent, textvariable=self.var_heading, width=3, justify=tk.RIGHT)
         self.lbl_encode = tk.Label(parent, text="文字コード:")
         self.var_encode = tk.StringVar(value="")
         self.cbb_encode = ttk.Combobox(parent, values=["utf_8", "cp932"], width=5, textvariable=self.var_encode)
@@ -62,12 +65,15 @@ class ListView(ttk.Frame):
         self.lbl_msg = tk.Label(parent
                                 , textvariable=self.msg
                                 , justify=tk.LEFT
-                                , font=("Fixedsys", 11)
+                                # , font=("Fixedsys", 11)   # 全角が等幅にならない
+                                , font=("ＭＳ ゴシック", 11)
                                 , relief=tk.RIDGE
                                 , anchor=tk.W)
         self.lbl_msg.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)    # 先にpackしないと下に配置されない
         self.cbb_encode.pack(side=tk.RIGHT, fill=tk.Y)
         self.lbl_encode.pack(side=tk.RIGHT, fill=tk.Y)
+        self.ety_heading.pack(side=tk.RIGHT, fill=tk.Y, padx=(0,5))
+        self.lbl_heading.pack(side=tk.RIGHT, fill=tk.Y, padx=(5,0))
         self.lbl_csv.pack(side=tk.LEFT, fill=tk.BOTH)
         self.list_csv_path.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.btn_f_sel.pack(side=tk.RIGHT)
@@ -92,7 +98,7 @@ class ListView(ttk.Frame):
         self.style.map('Treeview', foreground=self.fixed_map('foreground')
                                  , background=self.fixed_map('background'))
         # タブごとのスタイルの設定
-        self.style.configure(tab_name + ".Treeview")
+        # self.style.configure(tab_name + ".Treeview")  # 不要だった
         # frameの作成。frameにTreeviewとScrollbarを配置する
         frame1 = tk.Frame(parent, bg="cyan")
         # Treeviewの作成
@@ -112,6 +118,37 @@ class ListView(ttk.Frame):
         parent.add(frame1, text=tab_name)
         return treeview1
 
+    def treeview_sort_column(self, tv:ttk.Treeview, col_name:str, reverse:bool):
+        """
+        カラムの見出しをクリックしたらソートする
+        Args:
+            Treeview:   ツリービュー
+            str         ソートのキーとなるカラム名
+            bool:       昇順か降順か
+        """
+        h_lines = self.var_heading.get()    # 見出しの行数
+        # ツリービューの対象列の値をリスト化。値は値とアイテムのタプル
+        l = [(tv.set(item_, col_name), item_) for item_ in tv.get_children('')]
+        l0 = l[:h_lines]
+        l1 = l[h_lines:]
+        try:
+            l1.sort(key=lambda t: int(t[0]), reverse=reverse)    # まず数字としてソート
+        except ValueError:
+            l1.sort(reverse=reverse)                             # 例外が発生したら文字としてソート
+        l = l0 + l1
+
+        # rearrange items in sorted positions
+        for index, (_, item_) in enumerate(l):
+            tv.move(item_, '', index)
+            tags1 = []              # tag設定値の初期化
+            if index & 1:               # 奇数か? i % 2 == 1:
+                tags1.append("odd") # 奇数番目(treeviewは0始まりなので偶数行)だけ背景色を変える(oddタグを設定)
+            tv.item(item_, tags=tags1)
+
+        # reverse sort next time
+        tv.heading(col_name, command=lambda c=col_name: \
+                self.treeview_sort_column(tv, c, not reverse))
+                
     def update_tree_column(self, tree:ttk.Treeview, columns:list):
         """
         TreeViewの列定義と見出しを設定
@@ -123,19 +160,21 @@ class ListView(ttk.Frame):
         tree["columns"] = columns                  # treeviewの列定義を設定
         font1 = tkFont.Font()
         for col_name in columns:
-            tree.heading(col_name, text=col_name)  # 見出しの設定
+            # tree.heading(col_name, text=col_name)  # 見出しの設定
+            tree.heading(col_name, text=col_name, command=lambda c=col_name:\
+                self.treeview_sort_column(tree, c, False))
             width1 = font1.measure(col_name) + 10  # 見出しの文字幅をピクセルで取得
             # width1 = min(width1, 200)              # 見出しの幅が200pxより大きい時は200pxにする
             tree.column(col_name, width=width1)    # 見出し幅の設定
 
     def update_tree_by_result(self, tree:ttk.Treeview, rows:list):
         """
-        rows(エクセルのデータ)をTreeViewに設定
+        rows(CSVのデータ)をTreeViewに設定
         要素の文字幅が見出しの文字幅より長い場合は、列幅を変更する。
         奇数列の背景色を変更
         Args:
             Treeview:   Treeviewインスタンス
-            list:       Excel実行結果セット(行リストの列リスト)
+            list:       CSVデータ(行リストの列リスト)
         """
         if not rows:    # 要素が無ければ戻る
             return
@@ -224,7 +263,7 @@ class ListView(ttk.Frame):
             # 抽出したリストの要素の中で改行の数の最も多い要素を取得
             longest_cell = max(cells, key=lambda x:x.count("\n"))
             max_row_lines = longest_cell.count("\n") + 1             # 改行の数を数える
-            # Treeviewの行の高さを変更
+            # Treeviewの行の高さを変更  # タブごとのスタイルの設定
             self.style.configure(tab_name1 + ".Treeview", rowheight = 18 * max_row_lines)
         
     def select_files(self, event=None):
@@ -232,7 +271,7 @@ class ListView(ttk.Frame):
         ファイル選択ダイアログを表示。選択したファイルパスを保存
         """
         # 拡張子の辞書からfiletypes用のデータを作成
-        # 辞書{".csv":"CSV", ".tsv":"TSV"}、filetypes=[("CSV",".csv"), ("TSV",".tsv")]
+        # 辞書{".csv":("CSV", ","), ".tsv":("TSV", "\t")}、filetypes=[("CSV",".csv"), ("TSV",".tsv")]
         self.file_paths = filedialog.askopenfilenames(filetypes=[(value[0], key) for key, value in self.csv_op.extensions.items()])
         basenames = [os.path.basename(file_path) for file_path in self.file_paths]
         self.var_csv_path.set(basenames)
@@ -266,6 +305,9 @@ class CsvOp():
                 with open(file_name, encoding=encode_, newline="") as csvfile:
                     spamreader = csv.reader(csvfile, delimiter=delimiter_)
                     rows1 = [row for row in spamreader]
+                    # 1行目が必ず見出しになるので使わない
+                    # spamreader = csv.DictReader(csvfile, delimiter=delimiter_)
+                    # rows1 = [list(row.values()) for row in spamreader]
                     # 最大列数を求める
                     column_len = max(len(v) for v in rows1)
                     # 列の不足を空文字で補完する

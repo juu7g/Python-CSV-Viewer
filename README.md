@@ -31,6 +31,8 @@ Select CSV files and view the contents of files in a list view
 	Display vertical and horizontal scroll bars   
 - 文字コードを指定可能  
 	Character code can be specified  
+- 列の見出しをクリックしてソート  
+	Column sort by click column heading  
 
 ## 依存関係 Requirement
 
@@ -61,10 +63,16 @@ Select CSV files and view the contents of files in a list view
 			Or enter directly in the "Character code" combo box  
 			Pythonが認識できる文字コードでないとエラーになります  
 			An error will occur if the character code is not recognizable by Python  
+	- 列の見出しをクリックしてソート  
+		Column sort by click column heading  
 
 - 画面の説明 Screen description  
 	- 指定したファイルの内容を表形式で表示します  
+		Displays the contents of the specified file in tabular format  
 	- 複数ファイルを指定した場合、タブを変えて表示します  
+		If multiple files are specified, the tabs will be changed and displayed  
+	- ソートの時に見出しとしてソートしない行数を画面指定可能  
+		You can specify the number of lines that will not be sorted as a heading when sorting  
 
 ## インストール方法 Installation
 
@@ -72,7 +80,8 @@ Select CSV files and view the contents of files in a list view
 
 ## プログラムの説明サイト Program description site
 
-[CSV viewerアプリの作り方(ドラッグアンドドロップ)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer)  
+- [CSV viewerアプリの作り方(ドラッグアンドドロップ)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer)  
+- [Tkinter Treeview の列のソート(CSV viewer機能アップ)【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/csv/viewer-column-sort)  
 
 ## 作者 Authors
 juu7g
