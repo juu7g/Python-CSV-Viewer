@@ -31,7 +31,7 @@ Select CSV files and view the contents of files in a list view
 	Display vertical and horizontal scroll bars   
 - 文字コードを指定可能  
 	Character code can be specified  
-- 列の見出しをクリックしてソート  
+- 列の見出しをクリックしてソート(1.0.0)  
 	Column sort by click column heading  
 
 ## 依存関係 Requirement
@@ -42,7 +42,7 @@ Select CSV files and view the contents of files in a list view
 ## 使い方 Usage
 
 ```dosbatch
-	CSV_viewer.exe
+CSV_viewer.exe
 ```
 またはCSV_viewer.exeのアイコンに表示したいファイルをドラッグ＆ドロップします
 
